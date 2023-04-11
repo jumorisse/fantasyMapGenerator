@@ -1,5 +1,5 @@
 {
-    "name": "my-terrain-generator",
+    "name": "fantasyMapGenerator",
     "version": "1.0.0",
     "scripts": {
       "build": "webpack --mode production"

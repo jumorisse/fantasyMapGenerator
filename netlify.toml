@@ -1,3 +1,8 @@
 [build]
+  publish = "dist/fantasyMapGenerator"
   command = "npm run build"
-  publish = "dist"
+  base = "/"
+  functions = "netlify/functions/"
+
+[dev]
+  command = "npm run dev"
