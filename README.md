@@ -10,8 +10,9 @@ Paths leading through mountain or snowy peak terrain are additionally penalized.
 1. Clone this repository to your local machine.
 2. Navigate to the project directory in your terminal.
 3. Optional: Create and activate a new python environment.
-4. Install all required Python packages by running 'pip install -r requirements.txt'
-5. Navigate to the directory of app.py
-6. Run 'FLASK_APP=app.py' (for Windows) or 'export FLASK_APP=app.py' (for Linux and macOS)
-7. Then run 'flask run'
-8. Open 'http://127.0.0.1:5000/' in your browser
+4. Install Python packages by running 'pip install -r requirements.txt'
+5. Additionally install the noise package, e.g. via conda 'conda install -c conda-forge noise', for some reason pip install noise lead to an error for me. Hence, I excluded noise from requirements.txt
+6. Navigate to the directory of app.py
+7. Run 'set FLASK_APP=app.py' (for Windows) or 'export FLASK_APP=app.py' (for Linux and macOS)
+8. Then run 'flask run'
+9. Open 'http://127.0.0.1:5000/' in your browser
