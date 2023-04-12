@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 from scipy.ndimage import gaussian_filter
 import noise
+import networkx as nx
 import io
 import sys
 
@@ -101,10 +102,66 @@ def generateMap():
     # Return the resulting map
     return map, heightValues, terrainValues
 
+def createMapGraph(heightValues, terrainValues):
+    mapGraph = nx.Graph()
+    height, width = heightValues.shape
+
+    # Add nodes to the graph, one for each cell on the map
+    for y in range(height):
+        for x in range(width):
+            terrainType = terrainValues[y][x]
+            # If terrain is water, skip
+            if terrainType == 0:
+                continue
+
+            # Add the node to the graph, node id is coordinate tuple, each node also has terrain and height stored
+            mapGraph.add_node(tupleToString((x, y)), terrain=terrainType, height=heightValues[y][x])
+
+    # Add edges to the graph, use 8-neighborhood
+    for y in range(height):
+        for x in range(width):
+            currentNode = (x, y)
+
+            # If current node is water, skip
+            if terrainValues[y][x] == 0:
+                continue
+
+            for neighbor in [(x+1,y), (x-1,y), (x,y+1), (x,y-1), (x+1,y+1), (x+1,y-1), (x-1,y+1), (x-1,y+1)]:
+                # Stay inside map boundary
+                if neighbor[0] < 0 or neighbor[0] >= width or neighbor[1] < 0 or neighbor[1] >= height:
+                    continue
+
+                # If neighbor is water, skip
+                if terrainValues[neighbor[1]][neighbor[0]] == 0:
+                    continue
+
+                height_diff = abs(mapGraph._node[tupleToString(currentNode)]['height'] - mapGraph._node[tupleToString(neighbor)]['height'])
+
+                if terrainValues[neighbor[1]][neighbor[0]] == 1 or terrainValues[y][x] == 1:
+                    terrainWeight = 5
+                elif terrainValues[neighbor[1]][neighbor[0]] ==2 or terrainValues[y][x] ==2:
+                    terrainWeight = 10
+                else:
+                    terrainWeight = 1
+
+                mapGraph.add_edge(tupleToString(currentNode), tupleToString(neighbor), weight=500*height_diff*terrainWeight)
+
+    return mapGraph
+
+def tupleToString(tuple):
+    return str(tuple[0])+','+str(tuple[1])
+
+def stringToTuple(string):
+    values = string.split(',')
+    return (int(values[0]), int(values[1]))
+
 if __name__ == '__main__':
   map, heightValues, terrainValues = generateMap()
   img_file = './static/mapData/map.png'
   map.save(img_file, format='PNG')
   np.save('./static/mapData/height_values.npy', heightValues)
   np.save('./static/mapData/terrain_values.npy', terrainValues)
+
+  mapGraph = createMapGraph(heightValues, terrainValues)
+  nx.write_weighted_edgelist(mapGraph, "./static/mapData/mapGraph.edgelist")
   print(img_file)
